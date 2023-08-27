@@ -63,4 +63,8 @@ export class PlacesService {
         );
       });
   }
+
+  deletePlaces() {
+    this.places = [];
+  }
 }
