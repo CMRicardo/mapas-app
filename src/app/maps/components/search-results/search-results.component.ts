@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MapsService, PlacesService } from '../../services';
 import { Feature } from '../../interfaces/places.interface';
 
@@ -25,5 +25,13 @@ export class SearchResultsComponent {
     this.selectedId = place.id;
     const [lng, lat] = place.center;
     this.mapsService.flyTo([lng, lat]);
+  }
+
+  getDirections(place: Feature) {
+    if (!this.placesService.userLocation) throw Error('No hay userLocation!');
+
+    const start = this.placesService.userLocation;
+    const end = place.center as [number, number];
+    this.mapsService.getRouteBetweenPoints(start, end);
   }
 }
