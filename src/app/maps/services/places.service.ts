@@ -1,12 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { Feature, PlacesResponse } from '../interfaces/places.interface';
 import { PlacesApiClient } from '../api';
+import { MapsService } from './maps.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PlacesService {
   private placesApi = inject(PlacesApiClient);
+  private mapsService = inject(MapsService);
 
   public userLocation?: [number, number];
   public isLoadingPlaces: boolean = false;
@@ -29,7 +31,6 @@ export class PlacesService {
         },
         (err) => {
           alert('No se pudo conseguir tu geolocalización');
-          console.log(err);
           rej();
         }
       );
@@ -37,8 +38,14 @@ export class PlacesService {
   }
 
   getPlacesByQuery(query: string = '') {
+    if (query.length === 0) {
+      this.isLoadingPlaces = false;
+      this.places = [];
+      return;
+    }
+
     if (!this.userLocation) throw Error('No hay userLocation!');
-    // TODO: Evualuar si el query está vacio
+
     this.isLoadingPlaces = true;
     this.placesApi
       .get<PlacesResponse>(`/${query}.json`, {
@@ -47,9 +54,13 @@ export class PlacesService {
         },
       })
       .subscribe((res) => {
-        console.log(res.features);
         this.isLoadingPlaces = false;
         this.places = res.features;
+
+        this.mapsService.createMarkersFromPlaces(
+          this.places,
+          this.userLocation!
+        );
       });
   }
 }

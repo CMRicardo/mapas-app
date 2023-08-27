@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { PlacesService } from '../../services';
+import { MapsService, PlacesService } from '../../services';
 import { Feature } from '../../interfaces/places.interface';
 
 @Component({
@@ -9,6 +9,9 @@ import { Feature } from '../../interfaces/places.interface';
 })
 export class SearchResultsComponent {
   private placesService = inject(PlacesService);
+  private mapsService = inject(MapsService);
+
+  public selectedId: string = '';
 
   get isLoadingPlaces(): boolean {
     return this.placesService.isLoadingPlaces;
@@ -16,5 +19,11 @@ export class SearchResultsComponent {
 
   get places(): Feature[] {
     return this.placesService.places;
+  }
+
+  flyTo(place: Feature) {
+    this.selectedId = place.id;
+    const [lng, lat] = place.center;
+    this.mapsService.flyTo([lng, lat]);
   }
 }
